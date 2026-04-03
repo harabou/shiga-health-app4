@@ -11,6 +11,7 @@ import {
   HelpCircle,
   ChevronLeft,
   ChevronRight,
+  FlaskConical,
 } from "lucide-react";
 import { TableauEmbed } from "./TableauEmbed";
 import { TABLEAU_VIZZES, toTableauEmbedUrl } from "@/lib/tableauVizzes";
@@ -21,7 +22,7 @@ const OMI_NAVY = "#151f33";
 const VIDEO_BASE: Record<string, string> = {
   v1: "https://www.youtube.com/embed/aPgdnFsd4ug",
   v2: "https://www.youtube.com/embed/9G5z-qVaVXE",
-  v3: "https://www.youtube.com/embed/04HBEEzHB14", // 説明資料：Tableau可視化の内容
+  v3: "https://www.youtube.com/embed/04HBEEzHB14",
 };
 
 // 操作ガイド項目の型定義
@@ -38,7 +39,7 @@ type GuideItemExternalViz = {
 };
 type GuideItem = GuideItemVideo | GuideItemExternalViz;
 
-// 操作ガイド用の項目（動画の特定秒数へのジャンプ）
+// 操作ガイド用の項目
 const GUIDE_ITEMS: GuideItem[] = [
   { label: "サイトの構成", vid: "v1", sec: 18, type: "video" },
   { label: "グラフの操作方法", vid: "v1", sec: 485, type: "video" },
@@ -58,7 +59,8 @@ const GUIDE_ITEMS: GuideItem[] = [
 type CurrentView =
   | { mode: "tableau"; id: string; label: string }
   | { mode: "video"; id: string; url: string; label: string }
-  | { mode: "ext_viz"; url: string; label: string };
+  | { mode: "ext_viz"; url: string; label: string }
+  | { mode: "simulator"; label: string };
 
 export function PortalShell() {
   const [current, setCurrent] = useState<CurrentView>({
@@ -72,7 +74,7 @@ export function PortalShell() {
   // サイドバー：Tableauメニュー選択
   const handleSelectViz = (id: string, label: string) => {
     setCurrent({ mode: "tableau", id, label });
-    setPageKey(0); // ページを先頭にリセット
+    setPageKey(0);
   };
 
   // サイドバー：動画選択
@@ -137,11 +139,10 @@ export function PortalShell() {
             </button>
           ))}
 
+          {/* 動画メニュー */}
           <div className="pt-6 pb-2 px-3 text-[10px] text-white/30 font-bold uppercase tracking-widest">
             Guide Videos
           </div>
-
-          {/* 動画メニュー */}
           {Object.keys(VIDEO_BASE).map((vid, idx) => (
             <button
               key={vid}
@@ -156,6 +157,24 @@ export function PortalShell() {
               動画{idx + 1}
             </button>
           ))}
+
+          {/* 解析ツールメニュー */}
+          <div className="pt-6 pb-2 px-3 text-[10px] text-white/30 font-bold uppercase tracking-widest">
+            解析ツール
+          </div>
+          <button
+            onClick={() =>
+              setCurrent({ mode: "simulator", label: "健康寿命シミュレーター" })
+            }
+            className={`flex w-full items-center gap-3 p-3 rounded-xl text-sm transition-all ${
+              current.mode === "simulator"
+                ? "bg-emerald-500/20 ring-1 ring-emerald-400 text-white"
+                : "text-white/40 hover:bg-white/5"
+            }`}
+          >
+            <FlaskConical className="h-5 w-5 shrink-0 text-emerald-400" />
+            <span className="text-left">健康寿命シミュレーター</span>
+          </button>
         </nav>
       </aside>
 
@@ -179,8 +198,6 @@ export function PortalShell() {
                   pageKey={pageKey}
                 />
               </div>
-
-              {/* ページ遷移ボタン（複数ページある場合のみ表示） */}
               {activeViz.viewPaths.length > 1 && (
                 <div className="h-14 bg-white border-t flex items-center justify-between px-6 shrink-0 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
                   <button
@@ -214,6 +231,29 @@ export function PortalShell() {
                 className="w-full h-full rounded-xl shadow-lg border border-slate-200"
                 allow="autoplay; fullscreen"
               />
+            </div>
+          )}
+
+          {/* シミュレーター：準備中 */}
+          {current.mode === "simulator" && (
+            <div className="flex-1 flex flex-col items-center justify-center gap-6 p-8">
+              <div className="bg-white rounded-3xl shadow-lg border border-slate-200 p-12 flex flex-col items-center gap-4 max-w-md w-full text-center">
+                <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center">
+                  <FlaskConical className="w-8 h-8 text-emerald-500" />
+                </div>
+                <h2 className="text-xl font-bold text-slate-800">
+                  健康寿命シミュレーター
+                </h2>
+                <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold px-4 py-2 rounded-full">
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                  準備中
+                </div>
+                <p className="text-sm text-slate-500 leading-relaxed">
+                  血圧・喫煙・糖尿病・BMIの改善による<br />
+                  健康寿命の延伸効果をシミュレーションできるツールです。<br />
+                  近日公開予定です。
+                </p>
+              </div>
             </div>
           )}
         </div>
