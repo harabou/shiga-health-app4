@@ -11,8 +11,19 @@ import { HealthSimulator } from "./HealthSimulator";
 import { TABLEAU_VIZZES, toTableauEmbedUrl } from "@/lib/tableauVizzes";
 
 // ==========================================
-// ガイドアイテム型定義
+// デザイントークン（zinc-950 + Healthcare Blue）
 // ==========================================
+const BG_BASE = "#09090b";          // zinc-950
+const BG_SIDEBAR = "#0f0f12";       // サイドバー（わずかに明るい）
+const BG_CARD = "rgba(255,255,255,0.04)";
+const BORDER = "rgba(255,255,255,0.08)";
+const ACCENT = "#2563eb";           // Healthcare Blue (blue-600)
+const ACCENT_LIGHT = "rgba(37,99,235,0.15)";
+const ACCENT_BORDER = "rgba(37,99,235,0.3)";
+const TEXT_PRIMARY = "rgba(255,255,255,0.9)";
+const TEXT_SECONDARY = "rgba(255,255,255,0.5)";
+const TEXT_MUTED = "rgba(255,255,255,0.3)";
+
 type GuideItemVideo = { label: string; type: "video"; vid: string; sec: number };
 type GuideItemExternalViz = { label: string; type: "external_viz"; url: string };
 type GuideItem = GuideItemVideo | GuideItemExternalViz;
@@ -46,58 +57,56 @@ type CurrentView =
 // ==========================================
 function WelcomeScreen({ onStart }: { onStart: () => void }) {
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-8 relative overflow-hidden">
-      {/* 背景装飾 */}
+    <div className="flex-1 flex flex-col items-center justify-center p-12 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full opacity-10"
-          style={{ background: "radial-gradient(circle, #10b981, transparent)" }} />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full opacity-10"
-          style={{ background: "radial-gradient(circle, #3b82f6, transparent)" }} />
+        <div className="absolute top-1/3 left-1/3 w-96 h-96 rounded-full opacity-5"
+          style={{ background: "radial-gradient(circle, #2563eb, transparent)" }} />
+        <div className="absolute bottom-1/3 right-1/3 w-80 h-80 rounded-full opacity-5"
+          style={{ background: "radial-gradient(circle, #2563eb, transparent)" }} />
       </div>
 
-      <div className="relative z-10 max-w-2xl w-full text-center space-y-8">
-        {/* ロゴ・タイトル */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-center gap-3">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
-              style={{ background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)" }}>
-              <Activity className="w-7 h-7 text-emerald-400" />
+      <div className="relative z-10 max-w-2xl w-full text-center space-y-10">
+        <div className="space-y-5">
+          <div className="flex items-center justify-center">
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
+              style={{ background: ACCENT_LIGHT, border: `1px solid ${ACCENT_BORDER}` }}>
+              <Activity className="w-8 h-8" style={{ color: ACCENT }} />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">
-            健康寿命分析ポータル
-          </h1>
-          <p className="text-white/50 text-sm leading-relaxed">
-            滋賀県健康づくり施策構築支援システム<br />
-            データ分析・可視化・シミュレーションを一元管理
-          </p>
+          <div>
+            <h1 className="text-3xl font-bold mb-3" style={{ color: TEXT_PRIMARY }}>
+              健康寿命分析ポータル
+            </h1>
+            <p className="text-sm leading-relaxed" style={{ color: TEXT_SECONDARY }}>
+              滋賀県健康づくり施策構築支援システム<br />
+              データ分析・可視化・シミュレーションを一元管理
+            </p>
+          </div>
         </div>
 
-        {/* 機能カード */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-5">
           {[
-            { icon: <Database className="w-6 h-6 text-sky-400" />, title: "データ分析", desc: "Tableauによる多角的な健康データ可視化", color: "rgba(56,189,248,0.1)", border: "rgba(56,189,248,0.2)" },
-            { icon: <Video className="w-6 h-6 text-violet-400" />, title: "活用ガイド", desc: "操作説明動画で使い方をサポート", color: "rgba(167,139,250,0.1)", border: "rgba(167,139,250,0.2)" },
-            { icon: <Microscope className="w-6 h-6 text-emerald-400" />, title: "解析ツール", desc: "健康寿命シミュレーターで延伸効果を試算", color: "rgba(16,185,129,0.1)", border: "rgba(16,185,129,0.2)" },
+            { icon: <Database className="w-6 h-6" />, title: "データ分析", desc: "Tableauによる多角的な健康データ可視化" },
+            { icon: <Video className="w-6 h-6" />, title: "活用ガイド", desc: "操作説明動画で使い方をサポート" },
+            { icon: <Microscope className="w-6 h-6" />, title: "解析ツール", desc: "健康寿命シミュレーターで延伸効果を試算" },
           ].map((item) => (
-            <div key={item.title} className="rounded-2xl p-5 text-left space-y-3"
-              style={{ background: item.color, border: `1px solid ${item.border}`, backdropFilter: "blur(10px)" }}>
+            <div key={item.title} className="rounded-2xl p-6 text-left space-y-4"
+              style={{ background: BG_CARD, border: `1px solid ${BORDER}` }}>
               <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ background: item.color, border: `1px solid ${item.border}` }}>
+                style={{ background: ACCENT_LIGHT, border: `1px solid ${ACCENT_BORDER}`, color: ACCENT }}>
                 {item.icon}
               </div>
               <div>
-                <p className="text-sm font-bold text-white">{item.title}</p>
-                <p className="text-xs text-white/50 mt-1 leading-relaxed">{item.desc}</p>
+                <p className="text-sm font-bold mb-1.5" style={{ color: TEXT_PRIMARY }}>{item.title}</p>
+                <p className="text-xs leading-relaxed" style={{ color: TEXT_MUTED }}>{item.desc}</p>
               </div>
             </div>
           ))}
         </div>
 
-        {/* スタートボタン */}
         <button onClick={onStart}
-          className="px-10 py-3.5 rounded-2xl text-sm font-bold text-white transition-all hover:scale-105 active:scale-95"
-          style={{ background: "linear-gradient(135deg, #10b981, #3b82f6)", boxShadow: "0 0 30px rgba(16,185,129,0.3)" }}>
+          className="px-12 py-4 rounded-2xl text-sm font-bold text-white transition-all hover:opacity-90 active:scale-[0.98]"
+          style={{ background: ACCENT, boxShadow: `0 0 30px ${ACCENT_LIGHT}` }}>
           データ分析を始める →
         </button>
       </div>
@@ -126,75 +135,86 @@ export function PortalShell() {
     current.mode === "tableau" || current.mode === "simulator" ? current.label :
     current.mode === "video" || current.mode === "ext_viz" ? current.label : "";
 
+  const isActive = (mode: string, id?: string) =>
+    current.mode === mode && (id === undefined || (current.mode === "tableau" && current.id === id) || (current.mode === "video" && current.id === id));
+
   return (
-    <div className="flex h-screen w-full overflow-hidden font-sans"
-      style={{ background: "linear-gradient(135deg, #0a1628 0%, #0f1f3d 50%, #0d1a2e 100%)" }}>
+    <div className="flex h-screen w-full overflow-hidden font-sans" style={{ background: BG_BASE }}>
 
       {/* サイドバー */}
       <aside className={`${isSidebarOpen ? "w-72" : "w-0"} shrink-0 flex flex-col transition-all duration-300 overflow-hidden z-20`}
-        style={{ borderRight: "1px solid rgba(255,255,255,0.06)" }}>
-        <div className="flex flex-col h-full" style={{ background: "rgba(255,255,255,0.03)", backdropFilter: "blur(20px)" }}>
+        style={{ background: BG_SIDEBAR, borderRight: `1px solid ${BORDER}` }}>
+        <div className="flex flex-col h-full">
+
           {/* ロゴ */}
-          <div className="p-5 flex items-center gap-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="px-6 py-5 flex items-center gap-3" style={{ borderBottom: `1px solid ${BORDER}` }}>
             <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)" }}>
-              <Activity className="w-5 h-5 text-emerald-400" />
+              style={{ background: ACCENT_LIGHT, border: `1px solid ${ACCENT_BORDER}` }}>
+              <Activity className="w-5 h-5" style={{ color: ACCENT }} />
             </div>
             <div>
-              <p className="text-white text-sm font-bold leading-tight">健康寿命分析</p>
-              <p className="text-white/30 text-[10px]">滋賀県ポータル</p>
+              <p className="text-sm font-bold" style={{ color: TEXT_PRIMARY }}>健康寿命分析</p>
+              <p className="text-[11px]" style={{ color: TEXT_MUTED }}>滋賀県ポータル</p>
             </div>
           </div>
 
-          <nav className="flex-1 overflow-y-auto p-3 space-y-1">
+          <nav className="flex-1 overflow-y-auto px-4 py-5 space-y-1">
             {/* ホーム */}
             <button onClick={() => setCurrent({ mode: "welcome" })}
-              className={`flex w-full items-center gap-3 p-3 rounded-xl text-sm transition-all ${current.mode === "welcome" ? "text-white" : "text-white/40 hover:text-white/70 hover:bg-white/5"}`}
-              style={current.mode === "welcome" ? { background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.25)" } : {}}>
-              <Landmark className="h-4 w-4 shrink-0 text-emerald-400" />
+              className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all"
+              style={current.mode === "welcome"
+                ? { background: ACCENT_LIGHT, border: `1px solid ${ACCENT_BORDER}`, color: TEXT_PRIMARY }
+                : { color: TEXT_SECONDARY }}>
+              <Landmark className="h-4 w-4 shrink-0" style={{ color: current.mode === "welcome" ? ACCENT : undefined }} />
               <span>ホーム</span>
             </button>
 
-            {/* データ分析 */}
-            <div className="pt-4 pb-1.5 px-3">
-              <p className="text-[9px] font-bold uppercase tracking-widest" style={{ color: "rgba(56,189,248,0.5)" }}>
-                データ分析
-              </p>
+            {/* データ分析セクション */}
+            <div className="pt-5 pb-2 px-2">
+              <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: TEXT_MUTED }}>データ分析</p>
             </div>
-            {TABLEAU_VIZZES.map((v) => (
-              <button key={v.id} onClick={() => handleSelectViz(v.id, v.label)}
-                className={`flex w-full items-center gap-3 p-3 rounded-xl text-xs transition-all ${current.mode === "tableau" && current.id === v.id ? "text-white" : "text-white/40 hover:text-white/70 hover:bg-white/5"}`}
-                style={current.mode === "tableau" && current.id === v.id ? { background: "rgba(56,189,248,0.12)", border: "1px solid rgba(56,189,248,0.2)" } : {}}>
-                <BarChart3 className="h-4 w-4 shrink-0 text-sky-400" />
-                <span className="text-left leading-tight">{v.label}</span>
-              </button>
-            ))}
+            {TABLEAU_VIZZES.map((v) => {
+              const active = current.mode === "tableau" && current.id === v.id;
+              return (
+                <button key={v.id} onClick={() => handleSelectViz(v.id, v.label)}
+                  className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-xs transition-all"
+                  style={active
+                    ? { background: ACCENT_LIGHT, border: `1px solid ${ACCENT_BORDER}`, color: TEXT_PRIMARY }
+                    : { color: TEXT_SECONDARY }}>
+                  <BarChart3 className="h-4 w-4 shrink-0" style={{ color: active ? ACCENT : undefined }} />
+                  <span className="text-left leading-tight">{v.label}</span>
+                </button>
+              );
+            })}
 
-            {/* 動画ガイド */}
-            <div className="pt-4 pb-1.5 px-3">
-              <p className="text-[9px] font-bold uppercase tracking-widest" style={{ color: "rgba(167,139,250,0.5)" }}>
-                活用ガイド
-              </p>
+            {/* 活用ガイドセクション */}
+            <div className="pt-5 pb-2 px-2">
+              <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: TEXT_MUTED }}>活用ガイド</p>
             </div>
-            {Object.keys(VIDEO_BASE).map((vid, idx) => (
-              <button key={vid} onClick={() => handleSelectVideo(vid, idx)}
-                className={`flex w-full items-center gap-3 p-3 rounded-xl text-xs transition-all ${current.mode === "video" && current.id === vid ? "text-white" : "text-white/40 hover:text-white/70 hover:bg-white/5"}`}
-                style={current.mode === "video" && current.id === vid ? { background: "rgba(167,139,250,0.12)", border: "1px solid rgba(167,139,250,0.2)" } : {}}>
-                <PlayCircle className="h-4 w-4 shrink-0 text-violet-400" />
-                <span>動画{idx + 1}</span>
-              </button>
-            ))}
+            {Object.keys(VIDEO_BASE).map((vid, idx) => {
+              const active = current.mode === "video" && current.id === vid;
+              return (
+                <button key={vid} onClick={() => handleSelectVideo(vid, idx)}
+                  className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all"
+                  style={active
+                    ? { background: ACCENT_LIGHT, border: `1px solid ${ACCENT_BORDER}`, color: TEXT_PRIMARY }
+                    : { color: TEXT_SECONDARY }}>
+                  <PlayCircle className="h-4 w-4 shrink-0" style={{ color: active ? ACCENT : undefined }} />
+                  <span>動画{idx + 1}</span>
+                </button>
+              );
+            })}
 
-            {/* 解析ツール */}
-            <div className="pt-4 pb-1.5 px-3">
-              <p className="text-[9px] font-bold uppercase tracking-widest" style={{ color: "rgba(16,185,129,0.5)" }}>
-                解析ツール
-              </p>
+            {/* 解析ツールセクション */}
+            <div className="pt-5 pb-2 px-2">
+              <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: TEXT_MUTED }}>解析ツール</p>
             </div>
             <button onClick={() => setCurrent({ mode: "simulator", label: "健康寿命シミュレーター" })}
-              className={`flex w-full items-center gap-3 p-3 rounded-xl text-xs transition-all ${current.mode === "simulator" ? "text-white" : "text-white/40 hover:text-white/70 hover:bg-white/5"}`}
-              style={current.mode === "simulator" ? { background: "rgba(16,185,129,0.12)", border: "1px solid rgba(16,185,129,0.2)" } : {}}>
-              <FlaskConical className="h-4 w-4 shrink-0 text-emerald-400" />
+              className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all"
+              style={current.mode === "simulator"
+                ? { background: ACCENT_LIGHT, border: `1px solid ${ACCENT_BORDER}`, color: TEXT_PRIMARY }
+                : { color: TEXT_SECONDARY }}>
+              <FlaskConical className="h-4 w-4 shrink-0" style={{ color: current.mode === "simulator" ? ACCENT : undefined }} />
               <span>健康寿命シミュレーター</span>
             </button>
           </nav>
@@ -204,26 +224,25 @@ export function PortalShell() {
       {/* メインエリア */}
       <main className="flex-1 flex flex-col min-w-0">
         {/* ヘッダー */}
-        <header className="h-13 shrink-0 flex items-center px-5 gap-4"
-          style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)", backdropFilter: "blur(20px)" }}>
+        <header className="h-14 shrink-0 flex items-center px-6 gap-4"
+          style={{ borderBottom: `1px solid ${BORDER}`, background: BG_SIDEBAR }}>
           <button onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 rounded-xl transition-all hover:bg-white/10 text-white/50 hover:text-white">
+            className="p-2 rounded-xl transition-all"
+            style={{ color: TEXT_MUTED }}>
             <Menu className="w-4 h-4" />
           </button>
-          <div className="flex items-center gap-2">
-            <div className="w-1 h-4 rounded-full" style={{ background: "linear-gradient(to bottom, #10b981, #3b82f6)" }} />
-            <span className="text-sm font-bold text-white/80">{currentLabel}</span>
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-5 rounded-full" style={{ background: ACCENT }} />
+            <span className="text-sm font-semibold" style={{ color: TEXT_PRIMARY }}>{currentLabel}</span>
           </div>
         </header>
 
         {/* コンテンツ */}
         <div className="flex-1 overflow-hidden flex flex-col">
-          {/* ウェルカム画面 */}
           {current.mode === "welcome" && (
             <WelcomeScreen onStart={() => handleSelectViz("t0", "1　はじめに")} />
           )}
 
-          {/* Tableau */}
           {current.mode === "tableau" && activeViz && (
             <>
               <div className="flex-1 min-h-0">
@@ -235,18 +254,20 @@ export function PortalShell() {
                 />
               </div>
               {activeViz.viewPaths.length > 1 && (
-                <div className="h-14 shrink-0 flex items-center justify-between px-6"
-                  style={{ borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)", backdropFilter: "blur(20px)" }}>
+                <div className="h-16 shrink-0 flex items-center justify-between px-8"
+                  style={{ borderTop: `1px solid ${BORDER}`, background: BG_SIDEBAR }}>
                   <button disabled={pageKey === 0} onClick={() => setPageKey((p) => p - 1)}
-                    className="flex items-center gap-2 text-xs font-bold text-white/50 hover:text-white disabled:opacity-20 transition-all px-4 py-2 rounded-xl hover:bg-white/10">
+                    className="flex items-center gap-2 text-sm font-medium disabled:opacity-25 transition-all px-5 py-2.5 rounded-xl"
+                    style={{ color: TEXT_SECONDARY, border: `1px solid ${BORDER}` }}>
                     <ChevronLeft className="w-4 h-4" /> 前のデータ
                   </button>
-                  <span className="text-xs font-bold px-4 py-1.5 rounded-full"
-                    style={{ background: "rgba(56,189,248,0.1)", border: "1px solid rgba(56,189,248,0.2)", color: "rgba(56,189,248,0.9)" }}>
+                  <span className="text-sm font-bold px-5 py-2 rounded-full"
+                    style={{ background: ACCENT_LIGHT, border: `1px solid ${ACCENT_BORDER}`, color: ACCENT }}>
                     PAGE {pageKey + 1} / {activeViz.viewPaths.length}
                   </span>
                   <button disabled={pageKey >= activeViz.viewPaths.length - 1} onClick={() => setPageKey((p) => p + 1)}
-                    className="flex items-center gap-2 text-xs font-bold text-sky-400 hover:text-sky-300 disabled:opacity-20 transition-all px-4 py-2 rounded-xl hover:bg-white/10">
+                    className="flex items-center gap-2 text-sm font-medium disabled:opacity-25 transition-all px-5 py-2.5 rounded-xl"
+                    style={{ color: ACCENT, background: ACCENT_LIGHT, border: `1px solid ${ACCENT_BORDER}` }}>
                     次のデータ <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -254,48 +275,47 @@ export function PortalShell() {
             </>
           )}
 
-          {/* 動画・外部 */}
           {(current.mode === "video" || current.mode === "ext_viz") && (
-            <div className="flex-1 p-4">
+            <div className="flex-1 p-6">
               <iframe key={current.url} src={current.url}
-                className="w-full h-full rounded-2xl border"
-                style={{ border: "1px solid rgba(255,255,255,0.08)" }}
+                className="w-full h-full rounded-2xl"
+                style={{ border: `1px solid ${BORDER}` }}
                 allow="autoplay; fullscreen" />
             </div>
           )}
 
-          {/* シミュレーター */}
           {current.mode === "simulator" && <HealthSimulator />}
         </div>
       </main>
 
       {/* ガイドチャット */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+      <div className="fixed bottom-8 right-8 z-50 flex flex-col items-end gap-4">
         {isChatOpen && (
-          <div className="w-80 h-[480px] rounded-3xl flex flex-col overflow-hidden"
-            style={{ background: "rgba(10,22,40,0.95)", border: "1px solid rgba(255,255,255,0.1)", backdropFilter: "blur(20px)", boxShadow: "0 25px 60px rgba(0,0,0,0.5)" }}>
-            <div className="p-4 flex justify-between items-center shrink-0"
-              style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-              <span className="text-xs font-bold text-white flex items-center gap-2">
-                <HelpCircle className="w-4 h-4 text-emerald-400" /> 操作ガイド
+          <div className="w-80 h-[500px] rounded-2xl flex flex-col overflow-hidden"
+            style={{ background: BG_SIDEBAR, border: `1px solid ${BORDER}`, boxShadow: "0 25px 60px rgba(0,0,0,0.6)" }}>
+            <div className="px-5 py-4 flex justify-between items-center shrink-0"
+              style={{ borderBottom: `1px solid ${BORDER}` }}>
+              <span className="text-sm font-bold flex items-center gap-2" style={{ color: TEXT_PRIMARY }}>
+                <HelpCircle className="w-4 h-4" style={{ color: ACCENT }} /> 操作ガイド
               </span>
               <button onClick={() => setIsChatOpen(false)}
-                className="p-1 rounded-full text-white/40 hover:text-white hover:bg-white/10 transition-all">
+                className="p-1.5 rounded-lg transition-all"
+                style={{ color: TEXT_MUTED }}>
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <div className="flex-1 p-4 overflow-y-auto space-y-2">
-              <p className="text-[9px] text-white/30 font-bold uppercase tracking-widest text-center pb-2"
-                style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+            <div className="flex-1 px-4 py-4 overflow-y-auto space-y-2">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-center pb-3 mb-1"
+                style={{ color: TEXT_MUTED, borderBottom: `1px solid ${BORDER}` }}>
                 動画シーン選択
               </p>
               {GUIDE_ITEMS.map((item, idx) => (
                 <button key={idx} onClick={() => handleGuideAction(item)}
-                  className="w-full text-left p-3 text-[11px] rounded-xl transition-all flex items-center gap-2 group text-white/50 hover:text-white"
-                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(16,185,129,0.1)"; e.currentTarget.style.borderColor = "rgba(16,185,129,0.2)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}>
-                  <Clock className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  className="w-full text-left px-4 py-3 text-xs rounded-xl transition-all flex items-center gap-3"
+                  style={{ color: TEXT_SECONDARY, background: BG_CARD, border: `1px solid ${BORDER}` }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = ACCENT_BORDER; e.currentTarget.style.color = TEXT_PRIMARY; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = TEXT_SECONDARY; }}>
+                  <Clock className="w-3.5 h-3.5 shrink-0" style={{ color: ACCENT }} />
                   <span className="font-medium">{item.label}</span>
                 </button>
               ))}
@@ -303,8 +323,8 @@ export function PortalShell() {
           </div>
         )}
         <button onClick={() => setIsChatOpen(!isChatOpen)}
-          className="p-4 rounded-2xl text-white transition-all hover:scale-110 active:scale-95"
-          style={{ background: "linear-gradient(135deg, #10b981, #3b82f6)", boxShadow: "0 8px 30px rgba(16,185,129,0.4)" }}>
+          className="p-4 rounded-2xl text-white transition-all hover:opacity-90 active:scale-95"
+          style={{ background: ACCENT, boxShadow: `0 8px 30px ${ACCENT_LIGHT}` }}>
           {isChatOpen ? <X className="w-5 h-5" /> : <MessageCircle className="w-5 h-5" />}
         </button>
       </div>
