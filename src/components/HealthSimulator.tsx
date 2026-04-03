@@ -6,9 +6,6 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
 
-// ==========================================
-// データ定義
-// ==========================================
 const RAW_DATA = [
   { year: 20.29, sex: "M", BP: 1, SM: 1, DM: 1, BMI: 1 },
   { year: 22.62, sex: "M", BP: 1, SM: 1, DM: 1, BMI: 2 },
@@ -214,77 +211,68 @@ function getYear(sex: string, bp: number, sm: number, dm: number, bmi: number): 
   return row ? row.year : null;
 }
 
-type SelectProps = {
-  label: string; value: number; onChange: (v: number) => void;
-  options: Record<number, string>; icon: string;
-};
+const glassCard = { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(20px)" };
+const glassCardBlue = { background: "rgba(56,189,248,0.06)", border: "1px solid rgba(56,189,248,0.15)", backdropFilter: "blur(20px)" };
+
+type SelectProps = { label: string; value: number; onChange: (v: number) => void; options: Record<number, string>; icon: string };
 
 function SelectField({ label, value, onChange, options, icon }: SelectProps) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
+      <label className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5" style={{ color: "rgba(255,255,255,0.4)" }}>
         <span>{icon}</span>{label}
       </label>
       <select value={value} onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400 transition-all">
+        className="w-full rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none transition-all"
+        style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
         {Object.entries(options).map(([k, v]) => (
-          <option key={k} value={k}>{v}</option>
+          <option key={k} value={k} style={{ background: "#0f1f3d" }}>{v}</option>
         ))}
       </select>
     </div>
   );
 }
 
-// ==========================================
-// 説明タブ
-// ==========================================
 function ExplanationTab() {
   return (
-    <div className="space-y-6">
-      <div className="bg-[#151f33] text-white rounded-2xl p-6">
-        <h2 className="text-lg font-bold">シミュレーターについて</h2>
-        <p className="text-sm text-white/70 mt-2 leading-relaxed">
-          解析ロジックは、NIPPON DATA研究班による長期の追跡調査結果に基づいています。<br />
+    <div className="space-y-5">
+      <div className="rounded-2xl p-5" style={glassCard}>
+        <h3 className="text-sm font-bold text-white mb-2">シミュレーターについて</h3>
+        <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>
+          解析ロジックは、NIPPON DATA研究班による長期の追跡調査結果に基づいています。
           以下の4つのリスク因子の組み合わせにより、65歳時点での健康寿命を推計します。
         </p>
       </div>
 
-      {/* 4つのリスク因子 */}
       <div className="grid grid-cols-4 gap-3">
         {[
-          { icon: "🩸", label: "血圧", desc: "収縮期・拡張期血圧のカテゴリー" },
-          { icon: "🚬", label: "喫煙", desc: "現在・過去・非喫煙の状況" },
-          { icon: "🍬", label: "糖尿病", desc: "糖尿病の有無" },
-          { icon: "⚖️", label: "BMI", desc: "体格指数による肥満度" },
+          { icon: "🩸", label: "血圧", color: "rgba(239,68,68,0.15)", border: "rgba(239,68,68,0.25)" },
+          { icon: "🚬", label: "喫煙", color: "rgba(251,191,36,0.15)", border: "rgba(251,191,36,0.25)" },
+          { icon: "🍬", label: "糖尿病", color: "rgba(167,139,250,0.15)", border: "rgba(167,139,250,0.25)" },
+          { icon: "⚖️", label: "BMI", color: "rgba(56,189,248,0.15)", border: "rgba(56,189,248,0.25)" },
         ].map((item) => (
-          <div key={item.label} className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm text-center">
+          <div key={item.label} className="rounded-2xl p-4 text-center"
+            style={{ background: item.color, border: `1px solid ${item.border}` }}>
             <div className="text-2xl mb-2">{item.icon}</div>
-            <p className="text-sm font-bold text-slate-700">{item.label}</p>
-            <p className="text-[10px] text-slate-400 mt-1">{item.desc}</p>
+            <p className="text-xs font-bold text-white">{item.label}</p>
           </div>
         ))}
       </div>
 
-      {/* 解説図 */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-slate-100">
-          <p className="text-xs font-bold text-slate-500">図1　健康寿命シミュレーターの概念図</p>
+      <div className="rounded-2xl overflow-hidden" style={glassCard}>
+        <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>
+            図1　健康寿命シミュレーターの概念図
+          </p>
         </div>
         <div className="p-4">
-          <Image
-            src="/simulator-guide.png"
-            alt="健康寿命シミュレーター解説図"
-            width={1200}
-            height={675}
-            className="w-full h-auto rounded-xl"
-          />
+          <Image src="/simulator-guide.png" alt="健康寿命シミュレーター解説図" width={1200} height={675} className="w-full h-auto rounded-xl" />
         </div>
       </div>
 
-      {/* 出典 */}
-      <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200">
-        <p className="text-[10px] text-slate-500 leading-relaxed">
-          <span className="font-bold text-slate-600">Source: </span>
+      <div className="rounded-2xl p-4" style={{ background: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.15)" }}>
+        <p className="text-[10px] leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }}>
+          <span className="font-bold text-emerald-400">Source: </span>
           Tsukinoki R, et al. Comprehensive assessment of the impact of blood pressure, body mass index, smoking, and diabetes on healthy life expectancy in Japan: NIPPON DATA90. J Epidemiol. 2025 Jan 11;35(8):349–54.
         </p>
       </div>
@@ -292,19 +280,12 @@ function ExplanationTab() {
   );
 }
 
-// ==========================================
-// シミュレータータブ
-// ==========================================
 function SimulatorTab() {
   const [sex, setSex] = useState<"M" | "F">("M");
-  const [bpB, setBpB] = useState(1);
-  const [smB, setSmB] = useState(1);
-  const [dmB, setDmB] = useState(1);
-  const [bmiB, setBmiB] = useState(2);
-  const [bpA, setBpA] = useState(1);
-  const [smA, setSmA] = useState(1);
-  const [dmA, setDmA] = useState(1);
-  const [bmiA, setBmiA] = useState(2);
+  const [bpB, setBpB] = useState(1); const [smB, setSmB] = useState(1);
+  const [dmB, setDmB] = useState(1); const [bmiB, setBmiB] = useState(2);
+  const [bpA, setBpA] = useState(1); const [smA, setSmA] = useState(1);
+  const [dmA, setDmA] = useState(1); const [bmiA, setBmiA] = useState(2);
   const [result, setResult] = useState<{ yB: number; yA: number } | null>(null);
 
   const handleCalc = () => {
@@ -322,35 +303,36 @@ function SimulatorTab() {
   ] : [];
 
   return (
-    <div className="space-y-5">
-      <p className="text-xs text-slate-500 leading-relaxed">
+    <div className="space-y-4">
+      <p className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }}>
         生活習慣の改善による健康寿命の延伸効果を可視化します。65歳時点で何年の延伸が期待できるかを示しています。
       </p>
 
-      {/* 性別 */}
-      <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
-        <p className="text-xs font-bold text-slate-500 mb-3">性別</p>
-        <div className="flex gap-3">
+      <div className="rounded-2xl p-4" style={glassCard}>
+        <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: "rgba(255,255,255,0.3)" }}>性別</p>
+        <div className="flex gap-2">
           {(["M", "F"] as const).map((s) => (
             <button key={s} onClick={() => { setSex(s); setResult(null); }}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${sex === s ? "bg-[#151f33] text-white shadow" : "bg-slate-100 text-slate-500 hover:bg-slate-200"}`}>
+              className="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all"
+              style={sex === s
+                ? { background: "linear-gradient(135deg, #10b981, #3b82f6)", color: "white" }
+                : { background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.08)" }}>
               {s === "M" ? "👨 男性" : "👩 女性"}
             </button>
           ))}
         </div>
       </div>
 
-      {/* 現在・目標 */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-3">
-          <p className="text-sm font-bold text-slate-700 border-b pb-2">📋 現在</p>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-2xl p-4 space-y-3" style={glassCard}>
+          <p className="text-xs font-bold text-white/60 pb-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>📋 現在</p>
           <SelectField label="血圧" value={bpB} onChange={(v) => { setBpB(v); setResult(null); }} options={BP_MAP} icon="🩸" />
           <SelectField label="喫煙" value={smB} onChange={(v) => { setSmB(v); setResult(null); }} options={SM_MAP} icon="🚬" />
           <SelectField label="糖尿病" value={dmB} onChange={(v) => { setDmB(v); setResult(null); }} options={DM_MAP} icon="🍬" />
           <SelectField label="BMI" value={bmiB} onChange={(v) => { setBmiB(v); setResult(null); }} options={BMI_MAP} icon="⚖️" />
         </div>
-        <div className="bg-white rounded-2xl p-4 border border-sky-200 shadow-sm space-y-3">
-          <p className="text-sm font-bold text-sky-700 border-b border-sky-100 pb-2">✨ 目標</p>
+        <div className="rounded-2xl p-4 space-y-3" style={glassCardBlue}>
+          <p className="text-xs font-bold pb-2" style={{ color: "rgba(56,189,248,0.8)", borderBottom: "1px solid rgba(56,189,248,0.1)" }}>✨ 目標</p>
           <SelectField label="血圧" value={bpA} onChange={(v) => { setBpA(v); setResult(null); }} options={BP_MAP} icon="🩸" />
           <SelectField label="喫煙" value={smA} onChange={(v) => { setSmA(v); setResult(null); }} options={SM_MAP} icon="🚬" />
           <SelectField label="糖尿病" value={dmA} onChange={(v) => { setDmA(v); setResult(null); }} options={DM_MAP} icon="🍬" />
@@ -359,45 +341,50 @@ function SimulatorTab() {
       </div>
 
       <button onClick={handleCalc}
-        className="w-full py-3.5 bg-sky-500 hover:bg-sky-600 active:scale-[0.99] text-white font-bold rounded-2xl shadow-lg transition-all text-sm">
+        className="w-full py-3 rounded-2xl text-sm font-bold text-white transition-all hover:scale-[1.01] active:scale-[0.99]"
+        style={{ background: "linear-gradient(135deg, #10b981, #3b82f6)", boxShadow: "0 4px 20px rgba(16,185,129,0.3)" }}>
         🚀 結果を表示する
       </button>
 
       {result && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm text-center">
-              <p className="text-xs text-slate-400 font-bold mb-1">現状の予測健康寿命</p>
-              <p className="text-3xl font-bold text-slate-800">{result.yB.toFixed(2)}<span className="text-base font-normal text-slate-400 ml-1">年</span></p>
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-2xl p-4 text-center" style={glassCard}>
+              <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: "rgba(255,255,255,0.3)" }}>現状の予測健康寿命</p>
+              <p className="text-3xl font-bold text-white">{result.yB.toFixed(2)}<span className="text-sm font-normal ml-1" style={{ color: "rgba(255,255,255,0.3)" }}>年</span></p>
             </div>
-            <div className={`rounded-2xl p-4 border shadow-sm text-center ${diff > 0 ? "bg-emerald-50 border-emerald-200" : "bg-white border-slate-200"}`}>
-              <p className="text-xs text-slate-400 font-bold mb-1">目標達成時の予測寿命</p>
-              <p className="text-3xl font-bold text-slate-800">{result.yA.toFixed(2)}<span className="text-base font-normal text-slate-400 ml-1">年</span></p>
-              <p className={`text-sm font-bold mt-1 ${diff > 0 ? "text-emerald-600" : diff < 0 ? "text-red-500" : "text-slate-400"}`}>
+            <div className="rounded-2xl p-4 text-center"
+              style={{ background: diff > 0 ? "rgba(16,185,129,0.1)" : "rgba(255,255,255,0.04)", border: `1px solid ${diff > 0 ? "rgba(16,185,129,0.2)" : "rgba(255,255,255,0.08)"}` }}>
+              <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: "rgba(255,255,255,0.3)" }}>目標達成時の予測寿命</p>
+              <p className="text-3xl font-bold text-white">{result.yA.toFixed(2)}<span className="text-sm font-normal ml-1" style={{ color: "rgba(255,255,255,0.3)" }}>年</span></p>
+              <p className="text-sm font-bold mt-1" style={{ color: diff > 0 ? "#10b981" : diff < 0 ? "#ef4444" : "rgba(255,255,255,0.3)" }}>
                 {diff > 0 ? `+${diff.toFixed(2)} 年` : diff < 0 ? `${diff.toFixed(2)} 年` : "変化なし"}
               </p>
             </div>
           </div>
+
           {diff > 0 && (
-            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-sm text-emerald-700 font-medium">
+            <div className="rounded-2xl p-4 text-xs font-medium" style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)", color: "#10b981" }}>
               💡 改善により健康寿命が <strong>{diff.toFixed(2)}年</strong> 延びる可能性があります。
             </div>
           )}
-          <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
-            <p className="text-xs font-bold text-slate-500 mb-3">リスクレベル比較（低いほど低リスク）</p>
-            <ResponsiveContainer width="100%" height={200}>
+
+          <div className="rounded-2xl p-4" style={glassCard}>
+            <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: "rgba(255,255,255,0.3)" }}>リスクレベル比較</p>
+            <ResponsiveContainer width="100%" height={180}>
               <BarChart data={chartData} barCategoryGap="30%">
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                <YAxis domain={[0, 5]} tick={{ fontSize: 11 }} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="現在" fill="#AED6F1" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="目標" fill="#F5B041" radius={[4, 4, 0, 0]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                <XAxis dataKey="name" tick={{ fontSize: 10, fill: "rgba(255,255,255,0.4)" }} />
+                <YAxis domain={[0, 5]} tick={{ fontSize: 10, fill: "rgba(255,255,255,0.4)" }} />
+                <Tooltip contentStyle={{ background: "#0f1f3d", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px", color: "white" }} />
+                <Legend wrapperStyle={{ fontSize: "11px", color: "rgba(255,255,255,0.5)" }} />
+                <Bar dataKey="現在" fill="rgba(56,189,248,0.6)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="目標" fill="rgba(16,185,129,0.6)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <p className="text-[10px] text-slate-400 leading-relaxed">
+
+          <p className="text-[10px] leading-relaxed" style={{ color: "rgba(255,255,255,0.3)" }}>
             ※本データの出典　Tsukinoki R, et al. Comprehensive assessment of the impact of blood pressure, body mass index, smoking, and diabetes on healthy life expectancy in Japan: NIPPON DATA90. J Epidemiol. 2025 Jan 11;35(8):349–54
           </p>
         </div>
@@ -406,27 +393,26 @@ function SimulatorTab() {
   );
 }
 
-// ==========================================
-// メインコンポーネント
-// ==========================================
 export function HealthSimulator() {
   const [activeTab, setActiveTab] = useState<"explanation" | "simulator">("explanation");
 
   return (
-    <div className="h-full overflow-y-auto bg-slate-50 p-6">
+    <div className="h-full overflow-y-auto p-6" style={{ scrollbarColor: "rgba(255,255,255,0.1) transparent" }}>
       <div className="max-w-3xl mx-auto space-y-5">
         {/* タブ */}
-        <div className="flex gap-2 bg-white rounded-2xl p-1.5 border border-slate-200 shadow-sm">
-          <button
-            onClick={() => setActiveTab("explanation")}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === "explanation" ? "bg-[#151f33] text-white shadow" : "text-slate-500 hover:bg-slate-50"}`}
-          >
+        <div className="flex gap-2 p-1.5 rounded-2xl" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <button onClick={() => setActiveTab("explanation")}
+            className="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all"
+            style={activeTab === "explanation"
+              ? { background: "rgba(255,255,255,0.1)", color: "white", border: "1px solid rgba(255,255,255,0.15)" }
+              : { color: "rgba(255,255,255,0.4)" }}>
             📖 説明
           </button>
-          <button
-            onClick={() => setActiveTab("simulator")}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === "simulator" ? "bg-sky-500 text-white shadow" : "text-slate-500 hover:bg-slate-50"}`}
-          >
+          <button onClick={() => setActiveTab("simulator")}
+            className="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all"
+            style={activeTab === "simulator"
+              ? { background: "linear-gradient(135deg, rgba(16,185,129,0.3), rgba(59,130,246,0.3))", color: "white", border: "1px solid rgba(16,185,129,0.3)" }
+              : { color: "rgba(255,255,255,0.4)" }}>
             🚀 シミュレーター
           </button>
         </div>
