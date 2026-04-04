@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 const SYSTEM_PROMPT = `あなたは「健康寿命分析ポータル」の操作サポートアシスタントです。
 滋賀県の健康づくり施策構築を支援するためのポータルサイトで、以下の機能があります。
@@ -33,68 +32,51 @@ const SYSTEM_PROMPT = `あなたは「健康寿命分析ポータル」の操作
 - Tableauの複数ページは画面下部の「前のデータ」「次のデータ」ボタンで切替
 - 右下のボタンから操作ガイド動画の特定シーンにジャンプ可能
 
-【データについて】
-- Tableauデータは公開済みのTableau Publicを使用
-- シミュレーターの出典：Tsukinoki R, et al. J Epidemiol. 2025 Jan 11;35(8):349–54
-
 ユーザーの質問に対して、親切・丁寧・簡潔に日本語で回答してください。
-サイトの操作方法やデータの見方について具体的にサポートしてください。
 専門的な医療判断や個別の健康相談には応じず、データの活用方法の説明にとどめてください。`;
 
 export async function POST(request: NextRequest) {
   try {
     const { message, history } = await request.json();
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ error: "API key not configured" }, { status: 500 });
     }
 
-    // 会話履歴を含めたコンテンツを構築
-    const contents = [
-      // システムプロンプトを最初のユーザーメッセージとして送信
-      {
-        role: "user",
-        parts: [{ text: SYSTEM_PROMPT }],
-      },
-      {
-        role: "model",
-        parts: [{ text: "はい、健康寿命分析ポータルのサポートアシスタントです。操作方法やデータの見方についてお気軽にご質問ください。" }],
-      },
-      // 過去の会話履歴
-      ...history.map((msg: { role: string; content: string }) => ({
-        role: msg.role === "user" ? "user" : "model",
-        parts: [{ text: msg.content }],
+    const messages = [
+      { role: "system", content: SYSTEM_PROMPT },
+      ...history.map((m: { role: string; content: string }) => ({
+        role: m.role === "user" ? "user" : "assistant",
+        content: m.content,
       })),
-      // 現在のメッセージ
-      {
-        role: "user",
-        parts: [{ text: message }],
-      },
+      { role: "user", content: message },
     ];
 
-    const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+    const response = await fetch(GROQ_API_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+      },
       body: JSON.stringify({
-        contents,
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 1024,
-        },
+        model: "llama-3.3-70b-versatile",
+        messages,
+        max_tokens: 1024,
+        temperature: 0.7,
       }),
     });
 
     if (!response.ok) {
       const error = await response.text();
-      console.error("Gemini API error:", error);
-      return NextResponse.json({ error: error }, { status: 500 });
+      console.error("Groq API error:", error);
+      return NextResponse.json({ error }, { status: 500 });
     }
 
     const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "回答を生成できませんでした。";
+    const reply = data.choices?.[0]?.message?.content ?? "回答を生成できませんでした。";
 
-    return NextResponse.json({ reply: text });
+    return NextResponse.json({ reply });
   } catch (error) {
     console.error("Chat API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

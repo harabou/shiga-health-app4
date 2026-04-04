@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Landmark, BarChart3, PlayCircle, MessageCircle, X, Clock,
   HelpCircle, ChevronLeft, ChevronRight, FlaskConical, Menu,
-  Activity, Database, Video, Microscope,
+  Activity, Database, Video, Microscope, Send, Bot,
 } from "lucide-react";
 import { TableauEmbed } from "./TableauEmbed";
 import { HealthSimulator } from "./HealthSimulator";
@@ -49,6 +49,175 @@ type CurrentView =
   | { mode: "ext_viz"; url: string; label: string }
   | { mode: "simulator"; label: string };
 
+type Message = { role: "user" | "ai"; content: string };
+
+// ==========================================
+// チャットウィジェット
+// ==========================================
+type ChatWidgetProps = {
+  guideItems: GuideItem[];
+  onGuideAction: (item: GuideItem) => void;
+  isOpen: boolean;
+  onToggle: () => void;
+};
+
+function ChatWidget({ guideItems, onGuideAction, isOpen, onToggle }: ChatWidgetProps) {
+  const [activeTab, setActiveTab] = useState<"guide" | "chat">("guide");
+  const [messages, setMessages] = useState<Message[]>([
+    { role: "ai", content: "こんにちは！健康寿命分析ポータルのサポートアシスタントです。操作方法やデータの見方についてお気軽にご質問ください。" }
+  ]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const handleSend = async () => {
+    if (!input.trim() || isLoading) return;
+    const userMessage = input.trim();
+    setInput("");
+    setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
+    setIsLoading(true);
+
+    try {
+      const history = messages.map((m) => ({ role: m.role, content: m.content }));
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userMessage, history }),
+      });
+      const data = await res.json();
+      setMessages((prev) => [...prev, { role: "ai", content: data.reply ?? "エラーが発生しました。" }]);
+    } catch {
+      setMessages((prev) => [...prev, { role: "ai", content: "通信エラーが発生しました。しばらくしてから再度お試しください。" }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed bottom-8 right-8 z-50 flex flex-col items-end gap-4">
+      {isOpen && (
+        <div className="w-96 h-[560px] rounded-2xl flex flex-col overflow-hidden"
+          style={{ background: BG_SIDEBAR, border: `1px solid ${BORDER}`, boxShadow: "0 25px 60px rgba(0,0,0,0.6)" }}>
+          {/* ヘッダー */}
+          <div className="px-5 py-4 flex justify-between items-center shrink-0"
+            style={{ borderBottom: `1px solid ${BORDER}` }}>
+            <span className="text-sm font-bold flex items-center gap-2" style={{ color: TEXT_PRIMARY }}>
+              <HelpCircle className="w-4 h-4" style={{ color: ACCENT }} /> サポートガイド
+            </span>
+            <button onClick={onToggle} className="p-1.5 rounded-lg" style={{ color: TEXT_MUTED }}>
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* タブ */}
+          <div className="flex shrink-0 px-4 pt-3 gap-2">
+            <button onClick={() => setActiveTab("guide")}
+              className="flex-1 py-2 rounded-xl text-xs font-bold transition-all"
+              style={activeTab === "guide"
+                ? { background: ACCENT, color: "white" }
+                : { color: TEXT_SECONDARY, background: BG_CARD, border: `1px solid ${BORDER}` }}>
+              📹 動画ガイド
+            </button>
+            <button onClick={() => setActiveTab("chat")}
+              className="flex-1 py-2 rounded-xl text-xs font-bold transition-all"
+              style={activeTab === "chat"
+                ? { background: ACCENT, color: "white" }
+                : { color: TEXT_SECONDARY, background: BG_CARD, border: `1px solid ${BORDER}` }}>
+              💬 AIチャット
+            </button>
+          </div>
+
+          {/* 動画ガイドタブ */}
+          {activeTab === "guide" && (
+            <div className="flex-1 px-4 py-3 overflow-y-auto space-y-2">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-center pb-2 mb-1"
+                style={{ color: TEXT_MUTED, borderBottom: `1px solid ${BORDER}` }}>
+                動画シーン選択
+              </p>
+              {guideItems.map((item, idx) => (
+                <button key={idx} onClick={() => onGuideAction(item)}
+                  className="w-full text-left px-4 py-3 text-xs rounded-xl transition-all flex items-center gap-3"
+                  style={{ color: TEXT_SECONDARY, background: BG_CARD, border: `1px solid ${BORDER}` }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = ACCENT_BORDER; e.currentTarget.style.color = TEXT_PRIMARY; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = TEXT_SECONDARY; }}>
+                  <Clock className="w-3.5 h-3.5 shrink-0" style={{ color: ACCENT }} />
+                  <span className="font-medium">{item.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* AIチャットタブ */}
+          {activeTab === "chat" && (
+            <>
+              <div className="flex-1 px-4 py-3 overflow-y-auto space-y-3">
+                {messages.map((msg, idx) => (
+                  <div key={idx} className={`flex gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                    {msg.role === "ai" && (
+                      <div className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center mt-0.5"
+                        style={{ background: ACCENT_LIGHT, border: `1px solid ${ACCENT_BORDER}` }}>
+                        <Bot className="w-3.5 h-3.5" style={{ color: ACCENT }} />
+                      </div>
+                    )}
+                    <div className="max-w-[75%] px-4 py-2.5 rounded-2xl text-xs leading-relaxed"
+                      style={msg.role === "user"
+                        ? { background: ACCENT, color: "white" }
+                        : { background: BG_CARD, border: `1px solid ${BORDER}`, color: TEXT_PRIMARY }}>
+                      {msg.content}
+                    </div>
+                  </div>
+                ))}
+                {isLoading && (
+                  <div className="flex gap-2 justify-start">
+                    <div className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center"
+                      style={{ background: ACCENT_LIGHT, border: `1px solid ${ACCENT_BORDER}` }}>
+                      <Bot className="w-3.5 h-3.5" style={{ color: ACCENT }} />
+                    </div>
+                    <div className="px-4 py-3 rounded-2xl text-xs"
+                      style={{ background: BG_CARD, border: `1px solid ${BORDER}`, color: TEXT_MUTED }}>
+                      考え中…
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+              <div className="px-4 py-3 shrink-0" style={{ borderTop: `1px solid ${BORDER}` }}>
+                <div className="flex gap-2">
+                  <input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                    placeholder="質問を入力してください…"
+                    className="flex-1 rounded-xl px-4 py-2.5 text-xs text-white placeholder:text-white/30 focus:outline-none"
+                    style={{ background: BG_CARD, border: `1px solid ${BORDER}` }}
+                  />
+                  <button onClick={handleSend} disabled={!input.trim() || isLoading}
+                    className="p-2.5 rounded-xl transition-all disabled:opacity-30"
+                    style={{ background: ACCENT, color: "white" }}>
+                    <Send className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+      <button onClick={onToggle}
+        className="p-4 rounded-2xl text-white transition-all hover:opacity-90 active:scale-95"
+        style={{ background: ACCENT, boxShadow: `0 8px 30px ${ACCENT_LIGHT}` }}>
+        {isOpen ? <X className="w-5 h-5" /> : <MessageCircle className="w-5 h-5" />}
+      </button>
+    </div>
+  );
+}
+
+// ==========================================
+// ウェルカム画面
+// ==========================================
 function WelcomeScreen({ onStart }: { onStart: () => void }) {
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-12 relative overflow-hidden">
@@ -105,6 +274,9 @@ function WelcomeScreen({ onStart }: { onStart: () => void }) {
   );
 }
 
+// ==========================================
+// メインコンポーネント
+// ==========================================
 export function PortalShell() {
   const [current, setCurrent] = useState<CurrentView>({ mode: "welcome" });
   const [pageKey, setPageKey] = useState(0);
@@ -257,45 +429,13 @@ export function PortalShell() {
         </div>
       </main>
 
-      {/* 操作ガイドチャット */}
-      <div className="fixed bottom-8 right-8 z-50 flex flex-col items-end gap-4">
-        {isChatOpen && (
-          <div className="w-80 h-[500px] rounded-2xl flex flex-col overflow-hidden"
-            style={{ background: BG_SIDEBAR, border: `1px solid ${BORDER}`, boxShadow: "0 25px 60px rgba(0,0,0,0.6)" }}>
-            <div className="px-5 py-4 flex justify-between items-center shrink-0"
-              style={{ borderBottom: `1px solid ${BORDER}` }}>
-              <span className="text-sm font-bold flex items-center gap-2" style={{ color: TEXT_PRIMARY }}>
-                <HelpCircle className="w-4 h-4" style={{ color: ACCENT }} /> 操作ガイド
-              </span>
-              <button onClick={() => setIsChatOpen(false)}
-                className="p-1.5 rounded-lg transition-all" style={{ color: TEXT_MUTED }}>
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="flex-1 px-4 py-4 overflow-y-auto space-y-2">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-center pb-3 mb-1"
-                style={{ color: TEXT_MUTED, borderBottom: `1px solid ${BORDER}` }}>
-                動画シーン選択
-              </p>
-              {GUIDE_ITEMS.map((item, idx) => (
-                <button key={idx} onClick={() => handleGuideAction(item)}
-                  className="w-full text-left px-4 py-3 text-xs rounded-xl transition-all flex items-center gap-3"
-                  style={{ color: TEXT_SECONDARY, background: BG_CARD, border: `1px solid ${BORDER}` }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = ACCENT_BORDER; e.currentTarget.style.color = TEXT_PRIMARY; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = TEXT_SECONDARY; }}>
-                  <Clock className="w-3.5 h-3.5 shrink-0" style={{ color: ACCENT }} />
-                  <span className="font-medium">{item.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-        <button onClick={() => setIsChatOpen(!isChatOpen)}
-          className="p-4 rounded-2xl text-white transition-all hover:opacity-90 active:scale-95"
-          style={{ background: ACCENT, boxShadow: `0 8px 30px ${ACCENT_LIGHT}` }}>
-          {isChatOpen ? <X className="w-5 h-5" /> : <MessageCircle className="w-5 h-5" />}
-        </button>
-      </div>
+      <ChatWidget
+        guideItems={GUIDE_ITEMS}
+        onGuideAction={handleGuideAction}
+        isOpen={isChatOpen}
+        onToggle={() => setIsChatOpen(!isChatOpen)}
+      />
     </div>
   );
 }
+
