@@ -193,11 +193,6 @@ function ChatWidget({ guideItems, onGuideAction, isOpen, onToggle }: ChatWidgetP
     </div>
   );
 }
-
-type GuideItemVideo = { label: string; type: "video"; vid: string; sec: number };
-type GuideItemExternalViz = { label: string; type: "external_viz"; url: string };
-type GuideItem = GuideItemVideo | GuideItemExternalViz;
-
 const VIDEO_BASE: Record<string, string> = {
   v1: "https://www.youtube.com/embed/aPgdnFsd4ug",
   v2: "https://www.youtube.com/embed/9G5z-qVaVXE",
