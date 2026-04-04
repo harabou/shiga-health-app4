@@ -247,7 +247,7 @@ function WelcomeScreen({ onStart }: { onStart: () => void }) {
         </div>
         <div className="grid grid-cols-3 gap-5">
           {[
-            { icon: <Database className="w-6 h-6" />, title: "データ分析", desc: "Tableauによる多角的な健康データ可視化" },
+            { icon: <Database className="w-6 h-6" />, title: "データをみる", desc: "Tableauによる多角的な健康データ可視化" },
             { icon: <Video className="w-6 h-6" />, title: "活用ガイド", desc: "操作説明動画で使い方をサポート" },
             { icon: <Microscope className="w-6 h-6" />, title: "解析ツール", desc: "健康寿命シミュレーターで延伸効果を試算" },
           ].map((item) => (
