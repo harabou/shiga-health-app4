@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
     if (!response.ok) {
       const error = await response.text();
       console.error("Gemini API error:", error);
-      return NextResponse.json({ error: "Gemini API error" }, { status: 500 });
+      return NextResponse.json({ error: error }, { status: 500 });
     }
 
     const data = await response.json();
