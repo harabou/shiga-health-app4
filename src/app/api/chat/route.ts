@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent";
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 const SYSTEM_PROMPT = `あなたは「健康寿命分析ポータル」の操作サポートアシスタントです。
 滋賀県の健康づくり施策構築を支援するためのポータルサイトで、以下の機能があります。
