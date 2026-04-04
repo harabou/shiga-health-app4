@@ -241,7 +241,7 @@ function WelcomeScreen({ onStart }: { onStart: () => void }) {
             </h1>
             <p className="text-sm leading-relaxed" style={{ color: TEXT_SECONDARY }}>
               滋賀県健康づくり施策構築支援システム<br />
-              データ分析・可視化・シミュレーションを一元管理
+              データをみる・可視化・シミュレーションを一元管理
             </p>
           </div>
         </div>
