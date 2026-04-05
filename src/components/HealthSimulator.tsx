@@ -233,13 +233,25 @@ function getSmGoalOptions(smB: number): Record<number, string> {
   }
 }
 
-type SelectProps = { label: string; value: number; onChange: (v: number) => void; options: Record<number, string>; icon: string };
+type SelectProps = { 
+  label: string; 
+  value: number; 
+  onChange: (v: number) => void; 
+  options: Record<number, string>; 
+  icon: string;
+  iconType?: "emoji" | "svg";
+};
 
-function SelectField({ label, value, onChange, options, icon }: SelectProps) {
+function SelectField({ label, value, onChange, options, icon, iconType = "emoji" }: SelectProps) {
   return (
     <div className="flex flex-col gap-2">
       <label className="text-xs font-semibold flex items-center gap-2" style={{ color: TEXT_SECONDARY }}>
-        <span>{icon}</span>{label}
+        {iconType === "svg" ? (
+          <img src={icon} alt={label} className="w-5 h-5 invert opacity-70" />
+        ) : (
+          <span>{icon}</span>
+        )}
+        {label}
       </label>
       <select value={value} onChange={(e) => onChange(Number(e.target.value))}
         className="w-full rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all"
@@ -345,17 +357,17 @@ function SimulatorTab() {
       <div className="grid grid-cols-2 gap-4">
         <div className="rounded-2xl p-5 space-y-4" style={{ background: BG_CARD, border: `1px solid ${BORDER}` }}>
           <p className="text-sm font-bold pb-3" style={{ color: TEXT_SECONDARY, borderBottom: `1px solid ${BORDER}` }}>📋 現在</p>
-          <SelectField label="血圧" value={bpB} onChange={(v) => { setBpB(v); setResult(null); }} options={BP_MAP} icon="🩸" />
-          <SelectField label="喫煙" value={smB} onChange={(v) => { setSmB(v); setSmA(v); setResult(null); }} options={SM_MAP} icon="🚬" />
-          <SelectField label="糖尿病" value={dmB} onChange={(v) => { setDmB(v); setResult(null); }} options={DM_MAP} icon="🍬" />
-          <SelectField label="BMI" value={bmiB} onChange={(v) => { setBmiB(v); setResult(null); }} options={BMI_MAP} icon="⚖️" />
+          <SelectField label="血圧" value={bpB} onChange={(v) => { setBpB(v); setResult(null); }} options={BP_MAP} icon="/icons/blood-pressure.svg" iconType="svg" />
+          <SelectField label="喫煙" value={smB} onChange={(v) => { setSmB(v); setSmA(v); setResult(null); }} options={getSmGoalOptions(smB)} icon="/icons/smoking.svg" iconType="svg" />
+          <SelectField label="糖尿病" value={dmB} onChange={(v) => { setDmB(v); setResult(null); }} options={DM_MAP} icon="/icons/diabetes-measure.svg" iconType="svg" />
+          <SelectField label="BMI" value={bmiB} onChange={(v) => { setBmiB(v); setResult(null); }} options={BMI_MAP} icon="/icons/body-mass_index.svg" iconType="svg" />
         </div>
         <div className="rounded-2xl p-5 space-y-4" style={{ background: ACCENT_LIGHT, border: `1px solid ${ACCENT_BORDER}` }}>
           <p className="text-sm font-bold pb-3" style={{ color: ACCENT, borderBottom: `1px solid ${ACCENT_BORDER}` }}>✨ 目標</p>
-          <SelectField label="血圧" value={bpA} onChange={(v) => { setBpA(v); setResult(null); }} options={BP_MAP} icon="🩸" />
-          <SelectField label="喫煙" value={smA} onChange={(v) => { setSmA(v); setResult(null); }} options={getSmGoalOptions(smB)} icon="🚬" />
-          <SelectField label="糖尿病" value={dmA} onChange={(v) => { setDmA(v); setResult(null); }} options={DM_MAP} icon="🍬" />
-          <SelectField label="BMI" value={bmiA} onChange={(v) => { setBmiA(v); setResult(null); }} options={BMI_MAP} icon="⚖️" />
+          <SelectField label="血圧" value={bpB} onChange={(v) => { setBpB(v); setResult(null); }} options={BP_MAP} icon="/icons/blood-pressure.svg" iconType="svg" />
+          <SelectField label="喫煙" value={smA} onChange={(v) => { setSmA(v); setResult(null); }} options={getSmGoalOptions(bpB)} icon="/icons/smoking.svg" iconType="svg" />
+          <SelectField label="糖尿病" value={dmA} onChange={(v) => { setDmA(v); setResult(null); }} options={getDmGoalOptions(dmB)} icon="/icons/diabetes-measure.svg" iconType="svg" />
+          <SelectField label="BMI" value={bmiA} onChange={(v) => { setBmiA(v); setResult(null); }} options={getBmiGoalOptions(bmiB)} icon="/icons/body-mass_index.svg" iconType="svg" />
         </div>
       </div>
 
