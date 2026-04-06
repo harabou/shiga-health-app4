@@ -346,7 +346,7 @@ function SimulatorTab() {
         <div className="rounded-2xl p-5 space-y-4" style={{ background: BG_CARD, border: `1px solid ${BORDER}` }}>
           <p className="text-sm font-bold pb-3" style={{ color: TEXT_SECONDARY, borderBottom: `1px solid ${BORDER}` }}>📋 現在</p>
           <SelectField label="血圧" value={bpB} onChange={(v) => { setBpB(v); setResult(null); }} options={BP_MAP} icon="🩸" />
-          <SelectField label="喫煙" value={smB} onChange={(v) => { setSmB(v); setSmA(v); setResult(null); }} options={getSmGoalOptions(smB)} icon="🚬" />
+          <SelectField label="喫煙" value={smB} onChange={(v) => { setSmB(v); setSmA(v); setResult(null); }} options={SM_MAP} icon="🚬" />
           <SelectField label="糖尿病" value={dmB} onChange={(v) => { setDmB(v); setResult(null); }} options={DM_MAP} icon="🍬" />
           <SelectField label="BMI" value={bmiB} onChange={(v) => { setBmiB(v); setResult(null); }} options={BMI_MAP} icon="⚖️" />
         </div>
