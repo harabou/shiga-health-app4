@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
         "Authorization": `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "llama-3.1-8b-instant",
+        model: "groq/compound-mini",
         messages,
         max_tokens: 1024,
         temperature: 0.7,
